@@ -6,6 +6,8 @@
 #include <utility>
 #include <memory>
 
+// Interface
+
 struct vtable {
     int  (*get_x  ) (void* This);
     int  (*get_y  ) (void* This);
@@ -20,25 +22,6 @@ vtable const get_instance_of = {
     [](void* This) { return ((type*) This)->get_y(); },
     [](void* This) { return ((type*) This)->get_z(); },
     [](void* This) { delete ((type*) This); }
-};
-
-struct point {
-    int get_x() const { return *x * 3; }
-    int get_y() const { return *y * 2; }
-    int get_z() const { return *z * 4; }
-
-    std::unique_ptr <int> x, y, z;
-
-    point(int x, int y, int z) : x(new int(x)), y(new int(y)), z(new int(z)) {}
-    point(int val) : point(val, val, val) {}
-
-    point(point&& point_m) : x(std::move(point_m.x)), y(std::move(point_m.y)), z(std::move(point_m.z)) {}
-
-    ~point() {
-        x.reset(nullptr);
-        y.reset(nullptr);
-        z.reset(nullptr);
-    }
 };
 
 struct base {
@@ -63,6 +46,33 @@ struct base {
     }
 };
 
+// ~Interface
+
+// Impl
+
+struct point {
+    int get_x() const { return *x * 3; }
+    int get_y() const { return *y * 2; }
+    int get_z() const { return *z * 4; }
+
+    std::unique_ptr <int> x, y, z;
+
+    point(int x, int y, int z) : x(new int(x)), y(new int(y)), z(new int(z)) {}
+    point(int val) : point(val, val, val) {}
+
+    point(point&& point_m) : x(std::move(point_m.x)), y(std::move(point_m.y)), z(std::move(point_m.z)) {}
+
+    ~point() {
+        x.reset(nullptr);
+        y.reset(nullptr);
+        z.reset(nullptr);
+    }
+};
+
+// ~Impl
+
+// Main
+
 int main() {
     base element0(point{ 1, 2, 3 });
     base element1(std::move(element0));
@@ -72,4 +82,6 @@ int main() {
     std::cout << element1.get_z() << '\n';
     return 0;
 }
+
+// ~Main
 ```
